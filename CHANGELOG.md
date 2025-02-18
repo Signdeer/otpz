@@ -2,6 +2,14 @@
 
 All notable changes to `otpz` will be documented in this file.
 
+## v0.3.0 - 2025-02-18
+
+### What's Changed
+
+* 17 support laravel 12 by @benbjurstrom in https://github.com/benbjurstrom/otpz/pull/18
+
+**Full Changelog**: https://github.com/benbjurstrom/otpz/compare/v0.2.2...v0.3.0
+
 ## v0.2.2 - 2025-01-14
 
 ### What's Changed
