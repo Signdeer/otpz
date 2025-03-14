@@ -2,6 +2,15 @@
 
 All notable changes to `otpz` will be documented in this file.
 
+## v0.4.0 - 2025-03-14
+
+### What's Changed
+
+* 19 integrate with laravel starter kits by @benbjurstrom in https://github.com/benbjurstrom/otpz/pull/20
+* 21 make create account optional by @benbjurstrom in https://github.com/benbjurstrom/otpz/pull/22
+
+**Full Changelog**: https://github.com/benbjurstrom/otpz/compare/v0.3.0...v0.4.0
+
 ## v0.3.0 - 2025-02-18
 
 ### What's Changed
