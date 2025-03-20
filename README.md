@@ -19,6 +19,47 @@ This package provides secure first factor one-time passwords (OTPs) for Laravel 
 - ✅ Customizable mail template
 - ✅ Auditable logs
 
+## Starter Kits
+
+### Laravel + React Starter Kit
+
+1. **New Applications**
+
+    Create a new Laravel project using the OTPz + React starter kit with the following command:
+    ```bash
+    laravel new --using benbjurstrom/otpz-react-starter-kit otpz-react
+    ```
+
+ 2. **Existing Applications**:
+
+    You can see a diff of all changes needed to integrate OTPz with the official Laravel + React Starter Kit here: https://github.com/laravel/react-starter-kit/compare/main...benbjurstrom:otpz-react-starter-kit:main
+
+### Laravel + Vue Starter Kit
+
+1. **New Applications**
+
+    Create a new Laravel project using the OTPz + Vue starter kit with the following command:
+    ```bash
+    laravel new --using benbjurstrom/otpz-vue-starter-kit otpz-vue
+    ```
+
+ 2. **Existing Applications**:
+
+    You can see a diff of all changes needed to integrate OTPz with the official Laravel + Vue Starter Kit here: https://github.com/laravel/vue-starter-kit/compare/main...benbjurstrom:otpz-vue-starter-kit:main
+
+### Laravel + Livewire Starter Kit
+
+1. **New Applications**
+
+    Create a new Laravel project using the OTPz + Livewire starter kit with the following command:
+    ```bash
+    laravel new --using benbjurstrom/otpz-livewire-starter-kit otpz-livewire
+    ```
+
+ 2. **Existing Applications**:
+
+    You can see a diff of all changes needed to integrate OTPz with the official Laravel + Livewire Starter Kit here: https://github.com/laravel/livewire-starter-kit/compare/main...benbjurstrom:otpz-livewire-starter-kit:main
+
 ## Installation
 
 ### 1. Install the package via composer:
@@ -173,7 +214,7 @@ return [
 ];
 ```
 
-## Usage
+## Usage With Breeze
 
 ### Laravel Breeze Livewire Example
 1. Replace the Breeze provided [App\Livewire\Forms\LoginForm::authenticate](https://github.com/laravel/breeze/blob/2.x/stubs/livewire-common/app/Livewire/Forms/LoginForm.php#L29C6-L29C41) method with a sendEmail method that runs the SendOtp action. Also be sure to remove password from the LoginForm's properties.
