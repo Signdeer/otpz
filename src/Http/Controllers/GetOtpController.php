@@ -23,7 +23,6 @@ class GetOtpController {
         }
 
         $otpModel = Otpz::otpModel();
-        // $otpModel = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
         $otp = $otpModel::findOrFail($id);
 
         $url = URL::temporarySignedRoute(

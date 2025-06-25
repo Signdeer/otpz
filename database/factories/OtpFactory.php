@@ -16,7 +16,7 @@ class OtpFactory extends Factory
         parent::__construct(...$args);
 
         // Dynamically bind the model from config
-        $this->model = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
+        $otpModel = Otpz::otpModel();
     }
 
     public function definition(): array
