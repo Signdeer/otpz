@@ -1,23 +1,23 @@
 <?php
 
 return [
+
     /*
     |--------------------------------------------------------------------------
     | Expiration and Throttling
     |--------------------------------------------------------------------------
     |
-    | These settings control the security aspects of the generated codes,
-    | including their expiration time and the throttling mechanism to prevent
-    | abuse.
+    | Control how long OTPs are valid, and define throttling rules
+    | to protect against abuse (rate-limiting).
     |
     */
 
-    'expiration' => 5, // Minutes
+    'expiration' => 5, // OTP expires after 5 minutes
 
     'limits' => [
-        ['limit' => 1, 'minutes' => 1],
-        ['limit' => 3, 'minutes' => 5],
-        ['limit' => 5, 'minutes' => 30],
+        ['limit' => 1, 'minutes' => 1],   // Max 1 OTP per minute
+        ['limit' => 3, 'minutes' => 5],   // Max 3 OTPs per 5 minutes
+        ['limit' => 5, 'minutes' => 30],  // Max 5 OTPs per 30 minutes
     ],
 
     /*
@@ -25,13 +25,14 @@ return [
     | Model Configuration
     |--------------------------------------------------------------------------
     |
-    | This setting determines the model used by Otpz to store and retrieve
-    | one-time passwords. By default, it uses the 'App\Models\User' model.
+    | Define your user model and your custom OTP model here.
+    | The "authenticatable" model should implement Otpable.
     |
     */
 
     'models' => [
         'authenticatable' => App\Models\User::class,
+        'otp' => App\Models\Otp::class, // <-- your custom OTP model
     ],
 
     /*
@@ -39,9 +40,8 @@ return [
     | Mailable Configuration
     |--------------------------------------------------------------------------
     |
-    | This setting determines the Mailable class used by Otpz to send emails.
-    | Change this to your own Mailable class if you want to customize the email
-    | sending behavior.
+    | You can override the email that sends the OTP code to users.
+    | You can use the built-in OtpzMail or define your own class.
     |
     */
 
@@ -52,25 +52,25 @@ return [
     | Template Configuration
     |--------------------------------------------------------------------------
     |
-    | This setting determines the email template used by Otpz to send emails.
-    | Switch to 'otpz::mail.notification' if you prefer to use the default
-    | Laravel notification template.
+    | View used for the OTP email. Override this to use your own Markdown
+    | template if needed.
     |
     */
 
-    'template' => 'otpz::mail.otpz',
-    // 'template' => 'otpz::mail.notification',
+    'template' => 'otpz::mail.otpz', // customize with Blade if needed
+    // 'template' => 'otpz::mail.notification', // for Laravel-style notifications
 
     /*
     |--------------------------------------------------------------------------
     | User Resolver
     |--------------------------------------------------------------------------
     |
-    | Defines the class responsible for finding or creating users by email address.
-    | The default implementation will create a new user when an email doesn't exist.
-    | Replace with your own implementation for custom user resolution logic.
+    | This class resolves a user by email during OTP creation.
+    | You may provide your own to fetch by phone or tenant context.
     |
     */
 
-    'user_resolver' => BenBjurstrom\Otpz\Actions\GetUserFromEmail::class,
+    'user_resolver' => BenBjurstrom\Otpz\Actions\GetUserFromEmail::class
+    // App\Actions\ResolveUserForOtp::class, // or fallback:
+
 ];
