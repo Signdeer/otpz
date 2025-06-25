@@ -3,7 +3,7 @@
 namespace BenBjurstrom\Otpz\Actions;
 
 use BenBjurstrom\Otpz\Models\Concerns\Otpable;
-use BenBjurstrom\Otpz\Support\Config;
+// use BenBjurstrom\Otpz\Support\Config;
 use Illuminate\Support\Str;
 
 /**
@@ -13,7 +13,8 @@ class GetUserFromEmail
 {
     public function handle(string $email): Otpable
     {
-        $authenticatableModel = Config::getAuthenticatableModel();
+        // $authenticatableModel = Config::getAuthenticatableModel();
+        $authenticatableModel = config('otpz.models.authenticatable'); // ✅ correct
         $user = $authenticatableModel::where('email', $email)->first();
 
         if (! $user) {
