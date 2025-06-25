@@ -1,12 +1,12 @@
 {
-    "name": "benbjurstrom/otpz",
+    "name": "signdeer/otpz",
     "description": "First Factor One-Time Passwords for Laravel (Passwordless OTP Login)",
     "keywords": [
         "Ben Bjurstrom",
         "laravel",
         "otpz"
     ],
-    "homepage": "https://github.com/benbjurstrom/otpz",
+    "homepage": "https://github.com/signdeer/otpz",
     "license": "MIT",
     "authors": [
         {
