@@ -17,6 +17,7 @@ class SendOtp {
 
         // Resolve the user
         $user = (new $userResolverClass)->handle($email);
+        dd($user);
 
         // Generate the OTP (and code)
         [$otp, $code] = (new $createOtpAction)->handle($user, $remember);
