@@ -3,7 +3,7 @@
 namespace BenBjurstrom\Otpz\Models\Concerns;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use  BenBjurstrom\Otpz\Models\Otp;
+use  BenBjurstrom\Otpz\Otpz;
 trait HasOtps
 {
     /**
