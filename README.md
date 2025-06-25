@@ -40,7 +40,7 @@ This package provides secure first factor one-time passwords (OTPs) for Laravel 
 
     Create a new Laravel project using the OTPz + Vue starter kit with the following command:
     ```bash
-    laravel new --using benbjurstrom/otpz-vue-starter-kit otpz-vue
+    laravel new --using signdeer/otpz-vue-starter-kit otpz-vue
     ```
 
  2. **Existing Applications**:
@@ -53,7 +53,7 @@ This package provides secure first factor one-time passwords (OTPs) for Laravel 
 
     Create a new Laravel project using the OTPz + Livewire starter kit with the following command:
     ```bash
-    laravel new --using benbjurstrom/otpz-livewire-starter-kit otpz-livewire
+    laravel new --using signdeer/otpz-livewire-starter-kit otpz-livewire
     ```
 
  2. **Existing Applications**:
@@ -65,7 +65,7 @@ This package provides secure first factor one-time passwords (OTPs) for Laravel 
 ### 1. Install the package via composer:
 
 ```bash
-composer require benbjurstrom/otpz
+composer require signdeer/otpz
 ```
 
 ### 2. Publish and run the migrations

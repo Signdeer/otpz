@@ -2,21 +2,20 @@
 
 namespace BenBjurstrom\Otpz\Models\Concerns;
 
-use BenBjurstrom\Otpz\Models\Otp;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Model;
 
 interface Otpable extends Authenticatable, MustVerifyEmail
 {
     /**
-     * @return HasMany<Otp, Model>
+     * @return HasMany<Model>
      */
     public function otps(): HasMany;
 
     /**
-     * @return void
+     * Send the OTP notification to the user.
      */
-    public function notify(mixed $instance);
+    public function notify(mixed $instance): void;
 }

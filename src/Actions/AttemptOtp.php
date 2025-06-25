@@ -7,35 +7,40 @@ namespace BenBjurstrom\Otpz\Actions;
 use BenBjurstrom\Otpz\Enums\OtpStatus;
 use BenBjurstrom\Otpz\Exceptions\OtpAttemptException;
 use BenBjurstrom\Otpz\Models\Concerns\Otpable;
-use BenBjurstrom\Otpz\Models\Otp;
+use BenBjurstrom\Otpz\Otpz;
+
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * @method static Otp run(string $id, string $code)
+ * @method static Model run(string $id, string $code)
  */
 class AttemptOtp
 {
     /**
      * @throws OtpAttemptException
      */
-    public function handle(string $id, string $code, string $sessionId): Otp
+    public function handle(string $id, string $code, string $sessionId): Model
     {
         $this->validateSignature();
         $this->validateSession($sessionId);
-        $otp = Otp::findOrFail($id);
+
+        $otpModelClass = Otpz::otpModel();
+        /** @var Model $otp */
+        $otp = $otpModelClass::findOrFail($id);
+
         $this->validateStatus($otp);
         $this->validateNotExpired($otp);
         $this->validateAttempts($otp);
         $this->validateCode($otp, $code);
 
-        // if everything above passes mark the otp as used
         $otp->update(['status' => OtpStatus::USED]);
 
         return $otp;
     }
 
-    protected function getOtp(Otpable $user): ?Otp
+    protected function getOtp(Otpable $user): ?Model
     {
         return $user->otps()
             ->orderBy('created_at', 'DESC')
@@ -55,7 +60,7 @@ class AttemptOtp
     /**
      * @throws OtpAttemptException
      */
-    protected function validateStatus(Otp $otp): void
+    protected function validateStatus(Model $otp): void
     {
         if ($otp->status !== OtpStatus::ACTIVE) {
             throw new OtpAttemptException($otp->status->errorMessage());
@@ -65,30 +70,31 @@ class AttemptOtp
     /**
      * @throws OtpAttemptException
      */
-    protected function validateNotExpired(Otp $otp): void
+    protected function validateNotExpired(Model $otp): void
     {
         $expiration = Carbon::now()->subMinutes(config('otpz.expiration', 5));
+
         if ($otp->created_at->lt($expiration)) {
             $otp->update(['status' => OtpStatus::EXPIRED]);
-            throw new OtpAttemptException($otp->status->errorMessage());
+            throw new OtpAttemptException(OtpStatus::EXPIRED->errorMessage());
         }
     }
 
     /**
      * @throws OtpAttemptException
      */
-    protected function validateAttempts(Otp $otp): void
+    protected function validateAttempts(Model $otp): void
     {
         if ($otp->attempts >= 3) {
             $otp->update(['status' => OtpStatus::ATTEMPTED]);
-            throw new OtpAttemptException($otp->status->errorMessage());
+            throw new OtpAttemptException(OtpStatus::ATTEMPTED->errorMessage());
         }
     }
 
     /**
      * @throws OtpAttemptException
      */
-    protected function validateCode(Otp $otp, string $code): void
+    protected function validateCode(Model $otp, string $code): void
     {
         if (! Hash::check($code, $otp->code)) {
             $otp->increment('attempts');
@@ -99,7 +105,7 @@ class AttemptOtp
     /**
      * @throws OtpAttemptException
      */
-    protected function ValidateSignature(): void
+    protected function validateSignature(): void
     {
         if (! request()->hasValidSignature()) {
             if (! url()->signatureHasNotExpired(request())) {

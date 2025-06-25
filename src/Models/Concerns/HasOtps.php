@@ -2,16 +2,17 @@
 
 namespace BenBjurstrom\Otpz\Models\Concerns;
 
-use BenBjurstrom\Otpz\Models\Otp;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use  BenBjurstrom\Otpz\Models\Otp;
 trait HasOtps
 {
     /**
-     * @return HasMany<Otp>
+     * @return HasMany<\Illuminate\Database\Eloquent\Model>
      */
     public function otps(): HasMany
     {
-        return $this->hasMany(Otp::class);
+        $otpModel = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
+
+        return $this->hasMany($otpModel);
     }
 }

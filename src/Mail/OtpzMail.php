@@ -2,12 +2,12 @@
 
 namespace BenBjurstrom\Otpz\Mail;
 
-use BenBjurstrom\Otpz\Models\Otp;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Database\Eloquent\Model;
 
 class OtpzMail extends Mailable
 {
@@ -16,8 +16,10 @@ class OtpzMail extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct(protected Otp $otp, protected string $code)
-    {
+    public function __construct(
+        protected Model $otp,
+        protected string $code
+    ) {
         //
     }
 
@@ -27,7 +29,7 @@ class OtpzMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Sign in to '.config('app.name'),
+            subject: 'Sign in to ' . config('app.name'),
         );
     }
 
@@ -36,9 +38,9 @@ class OtpzMail extends Mailable
      */
     public function content(): Content
     {
-        $email = $this->otp->user->email;
+        $user = $this->otp->user ?? null;
+        $email = $user?->email ?? 'unknown@example.com';
 
-        // Format the code with hyphens for readability
         $formattedCode = substr_replace($this->code, '-', 5, 0);
 
         $template = config('otpz.template', 'otpz::mail.otpz');

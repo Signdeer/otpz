@@ -3,32 +3,31 @@
 use BenBjurstrom\Otpz\Actions\AttemptOtp;
 use BenBjurstrom\Otpz\Enums\OtpStatus;
 use BenBjurstrom\Otpz\Exceptions\OtpAttemptException;
-use BenBjurstrom\Otpz\Models\Otp;
-use BenBjurstrom\Otpz\Tests\Support\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    // Mock session ID
+    // Fake session
     Session::shouldReceive('getId')->andReturn('test-session-id');
 
-    // Set up request with valid signature by default
+    // Fake request signature validation
     Request::macro('hasValidSignature', fn () => true);
+    Request::macro('signatureHasNotExpired', fn () => true);
 });
 
 it('successfully validates and marks otp as used', function () {
-    $code = 'TESTCODE';
-    $user = User::factory()->create();
-    $otp = Otp::factory([
-        'code' => $code,
-    ])
-        ->for($user)
-        ->create();
+    $code = 'SECRET123';
+    $user = config('otpz.user_model')::factory()->create();
 
-    Request::merge(['session' => 'test-session-id']);
+    $otpModel = config('otpz.model');
+    $otp = $otpModel::factory()->for($user)->create([
+        'code' => Hash::make($code),
+    ]);
 
     $attemptedOtp = (new AttemptOtp)->handle($otp->id, $code, 'test-session-id');
 
@@ -38,82 +37,66 @@ it('successfully validates and marks otp as used', function () {
 });
 
 it('throws exception for invalid signature', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])->create();
     Request::macro('hasValidSignature', fn () => false);
+    $model = config('otpz.model');
+    $otp = $model::factory()->create();
 
-    expect(fn () => (new AttemptOtp)->handle($otp->id, $code, 'test-session-id'))
+    expect(fn () => (new AttemptOtp)->handle($otp->id, 'CODE', 'test-session-id'))
         ->toThrow(OtpAttemptException::class, OtpStatus::SIGNATURE->errorMessage());
 });
 
 it('throws exception for expired signature', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])->create();
     Request::macro('hasValidSignature', fn () => false);
     Request::macro('signatureHasNotExpired', fn () => false);
 
-    expect(fn () => (new AttemptOtp)->handle($otp->id, $code, 'test-session-id'))
+    $otp = config('otpz.model')::factory()->create();
+
+    expect(fn () => (new AttemptOtp)->handle($otp->id, 'CODE', 'test-session-id'))
         ->toThrow(OtpAttemptException::class, OtpStatus::SIGNATURE->errorMessage());
 });
 
-it('throws exception for non-active otp status', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])
-        ->used()
-        ->create();
+it('throws exception for non-active otp', function () {
+    $otp = config('otpz.model')::factory()->used()->create();
 
-    expect(fn () => (new AttemptOtp)->handle($otp->id, $code, 'test-session-id'))
+    expect(fn () => (new AttemptOtp)->handle($otp->id, 'CODE', 'test-session-id'))
         ->toThrow(OtpAttemptException::class, OtpStatus::USED->errorMessage());
 });
 
-it('throws exception for expired otp (older than 5 minutes)', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])
-        ->expired()
-        ->create();
+it('throws exception for expired otp', function () {
+    $otp = config('otpz.model')::factory()->expired()->create();
 
-    expect(fn () => (new AttemptOtp)->handle($otp->id, $code, 'test-session-id'))
+    expect(fn () => (new AttemptOtp)->handle($otp->id, 'CODE', 'test-session-id'))
         ->toThrow(OtpAttemptException::class, OtpStatus::EXPIRED->errorMessage());
 
     expect($otp->refresh()->status)->toBe(OtpStatus::EXPIRED);
 });
 
 it('throws exception for invalid code', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])->create();
-    Request::merge(['session' => 'wrong-session-id']);
+    $otp = config('otpz.model')::factory()->create([
+        'code' => Hash::make('ACTUAL_CODE'),
+    ]);
 
-    expect(fn () => (new AttemptOtp)->handle($otp->id, 'INVALIDCODE', 'test-session-id'))
+    expect(fn () => (new AttemptOtp)->handle($otp->id, 'WRONG_CODE', 'test-session-id'))
         ->toThrow(OtpAttemptException::class, OtpStatus::INVALID->errorMessage());
 });
 
-it('throws exception for non-existent otp', function () {
-    expect(fn () => (new AttemptOtp)->handle(999, 'INVALIDCODE', 'test-session-id'))
-        ->toThrow(Illuminate\Database\Eloquent\ModelNotFoundException::class);
+it('throws exception for missing OTP model', function () {
+    expect(fn () => (new AttemptOtp)->handle(999999, 'CODE', 'test-session-id'))
+        ->toThrow(ModelNotFoundException::class);
 });
 
 it('allows attempt within 5 minute window', function () {
-    $code = 'TESTCODE';
-    $otp = Otp::factory([
-        'code' => $code,
-    ])
+    $code = 'WITHIN_TIME';
+    $user = config('otpz.user_model')::factory()->create();
+
+    $otp = config('otpz.model')::factory()
+        ->for($user)
         ->state(['created_at' => now()->subMinutes(4)])
-        ->create();
+        ->create([
+            'code' => Hash::make($code),
+        ]);
 
-    Request::merge(['session' => 'test-session-id']);
+    $attempted = (new AttemptOtp)->handle($otp->id, $code, 'test-session-id');
 
-    $attemptedOtp = (new AttemptOtp)->handle($otp->id, $code, 'test-session-id');
-
-    expect($attemptedOtp->refresh())
-        ->status->toBe(OtpStatus::USED);
+    expect($attempted->refresh()->status)->toBe(OtpStatus::USED);
 });

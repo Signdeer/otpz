@@ -5,17 +5,18 @@ namespace BenBjurstrom\Otpz\Actions;
 use BenBjurstrom\Otpz\Enums\OtpStatus;
 use BenBjurstrom\Otpz\Exceptions\OtpThrottleException;
 use BenBjurstrom\Otpz\Models\Concerns\Otpable;
-use BenBjurstrom\Otpz\Models\Otp;
+use BenBjurstrom\Otpz\Otpz;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Model;
 
 /**
- * @method static Otpable run(Otpable $user)
+ * @method static Model run(Otpable $user)
  */
 class CreateOtp
 {
     /**
-     * @return list<Otp|string>
+     * @return list<Model|string>
      *
      * @throws OtpThrottleException
      */
@@ -29,7 +30,7 @@ class CreateOtp
     /**
      * @throws OtpThrottleException
      */
-    public function throttle(Otpable $user)
+    public function throttle(Otpable $user): void
     {
         foreach ($this->getThresholds() as $threshold) {
             $count = $this->getOtpCount($user, $threshold['minutes']);
@@ -79,21 +80,22 @@ class CreateOtp
     }
 
     /**
-     * @return list<Otp|string>
+     * @return list<Model|string>
      */
     private function createOtp(Otpable $user, bool $remember): array
     {
-        return DB::transaction(function () use ($user, $remember) {
-            // Generate a secure 9-digit OTP code
-            $code = Str::upper(Str::random(10));
-            $code = str_replace('O', '0', $code);
+        $otpModel = Otpz::otpModel();
 
-            // Invalidate existing active OTPs
+        return DB::transaction(function () use ($user, $otpModel, $remember) {
+            $code = Str::upper(Str::random(10));
+            $code = str_replace('O', '0', $code); // Make more readable
+
+            // Supersede any existing active OTPs
             $user->otps()
                 ->where('status', OtpStatus::ACTIVE)
                 ->update(['status' => OtpStatus::SUPERSEDED]);
 
-            // Create and save the new OTP
+            /** @var Model $otp */
             $otp = $user->otps()->create([
                 'code' => $code,
                 'status' => OtpStatus::ACTIVE,

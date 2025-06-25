@@ -2,22 +2,29 @@
 
 namespace BenBjurstrom\Otpz\Database\Factories;
 
-use BenBjurstrom\Otpz\Enums\OtpStatus;
-use BenBjurstrom\Otpz\Models\Otp;
-use BenBjurstrom\Otpz\Tests\Support\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
+use BenBjurstrom\Otpz\Enums\OtpStatus;
 
 class OtpFactory extends Factory
 {
-    protected $model = Otp::class;
+    /**
+     * Dynamically resolve the OTP model from config.
+     */
+    public function __construct(...$args)
+    {
+        parent::__construct(...$args);
+
+        // Dynamically bind the model from config
+        $this->model = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
+    }
 
     public function definition(): array
     {
         $code = Str::upper(Str::random(9));
 
         return [
-            'user_id' => User::factory(),
+            'user_id' => \BenBjurstrom\Otpz\Tests\Support\Models\User::factory(),
             'status' => OtpStatus::ACTIVE,
             'code' => $code,
             'ip_address' => fake()->ipv4(),
