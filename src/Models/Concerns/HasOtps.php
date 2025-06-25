@@ -11,8 +11,7 @@ trait HasOtps
      */
     public function otps(): HasMany
     {
-        $otpModel = config('otpz.model.otp', \BenBjurstrom\Otpz\Models\Otp::class);
-
+        $otpModel = Otpz::otpModel();
         return $this->hasMany($otpModel);
     }
 }

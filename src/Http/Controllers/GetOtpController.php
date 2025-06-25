@@ -22,7 +22,8 @@ class GetOtpController {
             return redirect()->route('login');
         }
 
-        $otpModel = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
+        $otpModel = Otpz::otpModel();
+        // $otpModel = config('otpz.model', \BenBjurstrom\Otpz\Models\Otp::class);
         $otp = $otpModel::findOrFail($id);
 
         $url = URL::temporarySignedRoute(
