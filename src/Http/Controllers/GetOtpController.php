@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 use BenBjurstrom\Otpz\Enums\OtpStatus;
+use  BenBjurstrom\Otpz\Otpz;
 
 class GetOtpController {
     public function __invoke(Request $request, string $id): View|RedirectResponse {
