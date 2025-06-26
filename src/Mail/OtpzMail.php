@@ -41,8 +41,10 @@ class OtpzMail extends Mailable
         $user = $this->otp->user ?? null;
         $email = $user?->email ?? 'unknown@example.com';
 
-        $formattedCode = substr_replace($this->code, '-', 5, 0);
+        $characters = config('otpz.characters') ?? 10;
+        $separator =  config('otpz.separator') ?? 2;
 
+        $formattedCode = substr_replace($this->code, '-', $characters/$separator , 0);
         $template = config('otpz.template', 'otpz::mail.otpz');
 
         return new Content(
