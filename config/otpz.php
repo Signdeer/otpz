@@ -35,6 +35,9 @@ return [
         'otp' => App\Models\Otp::class, // <-- your custom OTP model
     ],
 
+
+    'character_limit' => 10,
+
     /*
     |--------------------------------------------------------------------------
     | Mailable Configuration

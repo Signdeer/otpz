@@ -22,8 +22,9 @@ class OtpRequest extends FormRequest
      */
     public function rules(): array
     {
+        $characters = config('otpz.characters') ?? 10;
         return [
-            'code' => ['required', 'string', 'size:10'],
+            'code' => ['required', 'string', 'size:'.$characters],
             'sessionId' => ['required', 'string'],
         ];
     }

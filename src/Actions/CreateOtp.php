@@ -87,7 +87,8 @@ class CreateOtp
         $otpModel = Otpz::otpModel();
 
         return DB::transaction(function () use ($user, $otpModel, $remember) {
-            $code = Str::upper(Str::random(10));
+            $characters = config('otpz.characters') ?? 10;
+            $code = Str::upper(Str::random($characters));
             $code = str_replace('O', '0', $code); // Make more readable
 
             // Supersede any existing active OTPs
