@@ -14,7 +14,7 @@ class SendOtp {
     /**
      * @throws OtpThrottleException
      */
-    public function handle(string $email, bool $remember = false): \Illuminate\Database\Eloquent\Model
+    public function handle(string $email, bool $remember = false)
     {
         $mailableClass = config('otpz.mailable', \BenBjurstrom\Otpz\Mail\OtpzMail::class);
         $userResolverClass = config('otpz.user_resolver', \BenBjurstrom\Otpz\Actions\GetUserFromEmail::class);
@@ -41,14 +41,13 @@ class SendOtp {
                 $friendlyMessage = 'Unable to send email — Postmark is still in review or misconfigured.';
             }
 
-            return back()->withErrors([
-                'email' => $friendlyMessage,
-            ]);
+            $errors = [];
+            $errors['email'] = $friendlyMessage;
         }
 
 
 
         
-        return $otp;
+        return [$otp, $errors];
     }
 }
