@@ -71,8 +71,8 @@ class CreateOtp
             $remainingSeconds = now()->diffInSeconds($availableAt, false);
 
             return [
-                'minutes' => floor($remainingSeconds / 60),
-                'seconds' => $remainingSeconds % 60,
+                'minutes' => (int) floor($remainingSeconds / 60),
+                'seconds' => (int) ($remainingSeconds % 60),
             ];
         }
 
