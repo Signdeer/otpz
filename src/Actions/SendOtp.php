@@ -25,7 +25,8 @@ class SendOtp {
 
         // Generate the OTP (and code)
         [$otp, $code] = (new $createOtpAction)->handle($user, $remember);
-
+        
+        $errors = [];
         // Send the OTP via mail
         try {
             Mail::to($user)->send(new $mailableClass($otp, $code));
@@ -41,7 +42,6 @@ class SendOtp {
                 $friendlyMessage = 'Unable to send email — Postmark is still in review or misconfigured.';
             }
 
-            $errors = [];
             $errors['email'] = $friendlyMessage;
         }
 
